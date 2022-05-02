@@ -157,7 +157,7 @@ exports.postShoppingOrders = async(req,res,next) => {
     try {
     // first check if order already created.
       const checkOrder = await sequelize.query(`
-      select * from e_commerce_orders.shopping_orders 
+      select * from shopping_orders 
       where product_id= '${product_id}' and user_id = '${user_id}'
       `,{
         type: QueryTypes.SELECT
@@ -168,18 +168,22 @@ exports.postShoppingOrders = async(req,res,next) => {
       if(checkOrder.length > 0){
         order= await sequelize.query(
           `
-         UPDATE e_commerce_orders.shopping_orders
+         UPDATE shopping_orders
           SET            
             quantity = '${quantity}' 
           WHERE  product_id ='${product_id}' and  user_id = '${user_id}'  
           `, {
               type: QueryTypes.UPDATE
           });
-          
+        // product service call to update product quantity in product service .
+        await Axios.patch(`http://localhost:5001/product/${product_id}`, {
+          quantity: quantity,
+          oldQuantity: checkOrder[0].quantity
+        } )
       } else {
          order = await sequelize.query(
           `
-          INSERT INTO e_commerce_orders.shopping_orders
+          INSERT INTO shopping_orders
           (
               product_id,
               user_id,
@@ -193,17 +197,21 @@ exports.postShoppingOrders = async(req,res,next) => {
           `, {
               type: QueryTypes.INSERT
           });
+
+          // product service call to update product quantity in product service .
+        await Axios.patch(`http://localhost:5001/product/${product_id}`, {
+          quantity: quantity
+        } )
       }
       // delete product from shopping cart if exist.
       await sequelize.query(`
-          DELETE FROM e_commerce_orders.shopping_cart
+          DELETE FROM shopping_cart
           WHERE product_id = ${product_id} and user_id = ${user_id}
           
           `,{ 
               type: QueryTypes.DELETE
           });
-// product service call to update product quantity in product service .
-        await Axios.patch(`http://localhost:5001/product/${product_id}`, {quantity: quantity} )
+
             response.setData(checkOrder);
             response.setStatus(ReasonPhrases.CREATED);
             return res.status(StatusCodes.CREATED).send(response);
@@ -236,7 +244,7 @@ exports.updateShoppingOrders = async(req,res,next) => {
     try {
         const updateshoppingorder = await sequelize.query(
             `
-           UPDATE e_commerce_orders.shopping_orders
+           UPDATE shopping_orders
             SET            
               shopping_status = '${shopping_status}',
               quantity = '${quantity}' 

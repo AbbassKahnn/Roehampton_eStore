@@ -217,6 +217,8 @@ Router.get('/catagory/:product_catagories_id', [ Controller.getAllProductByCatag
   *                  properties:
   *                     quantity:
   *                        type: integer
+  *                     oldQuantity:
+  *                        type: integer
   *      parameters:
   *          - name: product_id
   *            in: path

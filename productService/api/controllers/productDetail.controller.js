@@ -52,7 +52,7 @@ exports.postProductDetail = async(req,res,next) => {
     try {
         const postProdetail = await sequelize.query(
             `
-            INSERT INTO e_commerce_product.product_detail
+            INSERT INTO  product_detail
             (
                 product_id,
                 product_style,
@@ -110,7 +110,7 @@ exports.updateProductDetail = async(req,res,next) => {
     try {
         const updateProeDtail = await sequelize.query(
             `
-           UPDATE e_commerce_product.product_detail
+           UPDATE  product_detail
             SET 
             product_style ='${product_style}',
             material ='${material}',
