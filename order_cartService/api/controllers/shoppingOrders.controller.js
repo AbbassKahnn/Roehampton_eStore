@@ -112,6 +112,7 @@ exports.getAllOrdersByUserId = async(req,res,next) => {
     for(let j=0; j<product.data.data.length; j++){
       if(product_ids[i] === product.data.data[j].product_id){
         product.data.data[j].shopping_cart_id = ShoppingOrder[i].shopping_order_id;
+        product.data.data[j].orderQuantity = ShoppingOrder[i].quantity
         product.data.data[j].shopping_status = ShoppingOrder[i].shopping_status;
         shoppingOderArr.push(product.data.data[j])
       }
@@ -164,23 +165,7 @@ exports.postShoppingOrders = async(req,res,next) => {
     }) ;
 
       let order;
-      // check if order already created then update order else create new order
-      if(checkOrder.length > 0){
-        order= await sequelize.query(
-          `
-         UPDATE shopping_orders
-          SET            
-            quantity = '${quantity}' 
-          WHERE  product_id ='${product_id}' and  user_id = '${user_id}'  
-          `, {
-              type: QueryTypes.UPDATE
-          });
-        // product service call to update product quantity in product service .
-        await Axios.patch(`http://localhost:5001/product/${product_id}`, {
-          quantity: quantity,
-          oldQuantity: checkOrder[0].quantity
-        } )
-      } else {
+      
          order = await sequelize.query(
           `
           INSERT INTO shopping_orders
@@ -202,7 +187,6 @@ exports.postShoppingOrders = async(req,res,next) => {
         await Axios.patch(`http://localhost:5001/product/${product_id}`, {
           quantity: quantity
         } )
-      }
       // delete product from shopping cart if exist.
       await sequelize.query(`
           DELETE FROM shopping_cart

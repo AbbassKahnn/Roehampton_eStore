@@ -399,19 +399,11 @@ exports.updateProduct = async (req, res, next) => {
 exports.updateQuantity = async (req, res, next) => {
   const response = new ResponseModel();
   const {
-    quantity,
-    oldQuantity
+    quantity
   } = req.body;
-    console.log("🚀 ~ file: product.controller.js ~ line 405 ~ exports.updateQuantity= ~ quantity", quantity)
-    console.log("🚀 ~ file: product.controller.js ~ line 404 ~ exports.updateQuantity= ~ oldQuantity", oldQuantity)
-
   try {
    let query = 'UPDATE  product SET quantity=quantity';
-   if(oldQuantity){
-   query = query + `+ '${oldQuantity}' - '${quantity}' ` 
-  } else {
     query = query + ` - ${quantity} `
-  }
   query =  query + ` where  product_id ='${req.params.product_id}'`
     let updateProductDetails = await sequelize.query(query, {
       type: QueryTypes.UPDATE
